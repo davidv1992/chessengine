@@ -1,0 +1,21 @@
+#define BOARD_SIDE 8
+#define BOARD_SQRS (BOARD_SIDE*BOARD_SIDE)
+
+#define PIECE_COLORMASK	0x80
+
+#define PIECE_WHITE		0
+#define PIECE_BLACK		0x80
+
+#define PIECE_NONE		0x00
+#define PIECE_PAWN		0x01
+#define PIECE_KNIGHT	0x02
+#define PIECE_BISHOP	0x04
+#define PIECE_ROOK		0x08
+#define PIECE_QUEEN		(PIECE_ROOK | PIECE_BISHOP)
+#define PIECE_KING		0x03
+
+#define CASTLE_S		0x01
+#define CASTLE_L		0x02
+
+#define CASTLE_WHITE_SHIFT	0
+#define CASTLE_BLACK_SHIFT	2
