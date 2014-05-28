@@ -606,7 +606,7 @@ void board::executeMove(move m)
 			}
 			if (m.from == 7)
 			{
-				castleRights &= ~(CASTLE_S << CASTLE_BLACK_SHIFT);
+				castleRights &= ~(CASTLE_S << CASTLE_WHITE_SHIFT);
 			}
 		}
 	}
@@ -748,6 +748,24 @@ pair<bool,bool> board::inCheck()
 				if (i < BOARD_SIDE-2 && j > 0 && squares[CBI(i+2,j-1)] == (opp(squares[CBI(i,j)]) | PIECE_KNIGHT))
 					curRes = true;
 				if (i < BOARD_SIDE-1 && j > 1 && squares[CBI(i+1,j-2)] == (opp(squares[CBI(i,j)]) | PIECE_KNIGHT))
+					curRes = true;
+				
+				// the other king?
+				if (i > 0 && squares[CBI(i-1,j)] == (opp(squares[CBI(i,j)]) | PIECE_KING))
+					curRes = true;
+				if (i > 0 && j > 0 && squares[CBI(i-1,j-1)] == (opp(squares[CBI(i,j)]) | PIECE_KING))
+					curRes = true;
+				if (j > 0 && squares[CBI(i,j-1)] == (opp(squares[CBI(i,j)]) | PIECE_KING))
+					curRes = true;
+				if (i < BOARD_SIDE-1 && j > 0 && squares[CBI(i+1,j-1)] == (opp(squares[CBI(i,j)]) | PIECE_KING))
+					curRes = true;
+				if (i < BOARD_SIDE-1 && squares[CBI(i+1,j)] == (opp(squares[CBI(i,j)]) | PIECE_KING))
+					curRes = true;
+				if (i < BOARD_SIDE-1 && j < BOARD_SIDE-1 && squares[CBI(i+1,j+1)] == (opp(squares[CBI(i,j)]) | PIECE_KING))
+					curRes = true;
+				if (j < BOARD_SIDE-1 && squares[CBI(i,j+1)] == (opp(squares[CBI(i,j)]) | PIECE_KING))
+					curRes = true;
+				if (i > 0 && j < BOARD_SIDE-1 && squares[CBI(i-1,j+1)] == (opp(squares[CBI(i,j)]) | PIECE_KING))
 					curRes = true;
 				
 				// Any sliding pieces?
