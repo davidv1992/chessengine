@@ -690,23 +690,23 @@ bool board::checkFromDiag(int kingPos, int di, int dj, unsigned char PIECE_MASK)
 move board::parseMove(string mov)
 {
 	int from = 0, to = 0, prom = 0;
-	if (mov[0] >= 'A' && mov[0] <= 'H' && mov[1] >= '1' && mov[1] <= '8')
+	if (mov[0] >= 'a' && mov[0] <= 'h' && mov[1] >= '1' && mov[1] <= '8')
 	{
-		from = (mov[1]-'1')*BOARD_SIDE + (mov[0]-'A');
+		from = (mov[1]-'1')*BOARD_SIDE + (mov[0]-'a');
 	}
 	
-	if (mov[3] >= 'A' && mov[3] <= 'H' && mov[4] >= '1' && mov[4] <= '8')
+	if (mov[2] >= 'a' && mov[2] <= 'h' && mov[3] >= '1' && mov[3] <= '8')
 	{
-		to = (mov[4] - '1')*BOARD_SIDE + (mov[3] - 'A');
+		to = (mov[3] - '1')*BOARD_SIDE + (mov[2] - 'a');
 	}
 	
-	if (mov[5] == 'n')
+	if (mov[4] == 'n')
 		prom = PIECE_KNIGHT;
-	if (mov[5] == 'b')
+	if (mov[4] == 'b')
 		prom = PIECE_BISHOP;
-	if (mov[5] == 'r')
+	if (mov[4] == 'r')
 		prom = PIECE_ROOK;
-	if (mov[5] == 'q')
+	if (mov[4] == 'q')
 		prom = PIECE_QUEEN;
 		
 	move m(from,to,prom);
@@ -787,13 +787,42 @@ pair<bool,bool> board::inCheck()
 	return result;
 }
 
+int board::eval()
+{
+	int score = 0;
+	for (int i=0; i<BOARD_SIDE; i++)
+	{
+		for (int j=0; j<BOARD_SIDE; j++)
+		{
+			int pieceScore = 0;
+			int piecebits = squares[CBI(i,j)] &~PIECE_COLORMASK;
+			if (piecebits == PIECE_PAWN)
+				pieceScore = 100;
+			if (piecebits == PIECE_KNIGHT)
+				pieceScore = 300;
+			if (piecebits == PIECE_BISHOP)
+				pieceScore = 300;
+			if (piecebits == PIECE_ROOK)
+				pieceScore = 500;
+			if (piecebits == PIECE_QUEEN)
+				pieceScore = 900;
+			
+			if ((squares[CBI(i,j)] & PIECE_COLORMASK) == toMove)
+				score += pieceScore;
+			else
+				score -= pieceScore;
+		}
+	}
+	
+	return score;
+}
+
 string move::dump()
 {
 	string result = "";
-	result += 'A' + (from%BOARD_SIDE);
+	result += 'a' + (from%BOARD_SIDE);
 	result += '1' + (from/BOARD_SIDE);
-	result += '-';
-	result += 'A' + (to%BOARD_SIDE);
+	result += 'a' + (to%BOARD_SIDE);
 	result += '1' + (to/BOARD_SIDE);
 	if (promotePiece == PIECE_KNIGHT)
 		result += 'n';

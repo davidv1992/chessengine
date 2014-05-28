@@ -21,6 +21,7 @@ private:
 	void init(std::string);
 	bool checkFromDiag(int, int, int, unsigned char);
 public:
+	int eval();
 	board();
 	board(std::string);
 	void dump(FILE *);
