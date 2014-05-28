@@ -71,7 +71,7 @@ int main()
 				{
 					board temp = b;
 					temp.executeMove(moves[i]);
-					int curScore = minimax(DEPTH, temp) + rand()%50;
+					int curScore = minimax(DEPTH, temp, -60000, -bestScore+50)+rand()%50;
 					if (curScore > bestScore)
 					{
 						besti = i;

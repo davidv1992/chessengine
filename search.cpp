@@ -7,7 +7,7 @@ using namespace std;
 #define MATESCORE 30000
 #define DRAWSCORE 0
 
-int minimax(int depth, board b)
+int minimax(int depth, board b, int alpha, int beta)
 {
 	if (depth == 0)
 		return -b.eval();
@@ -29,9 +29,11 @@ int minimax(int depth, board b)
 	{
 		board temp = b;
 		temp.executeMove(moves[i]);
-		int curScore = minimax(depth-1, temp);
+		int curScore = minimax(depth-1, temp, -beta, -max(alpha, bestSoFar));
 		if (curScore > bestSoFar)
 			bestSoFar = curScore;
+		if (bestSoFar >= beta)
+			break;
 	}
 	
 	return -bestSoFar;
