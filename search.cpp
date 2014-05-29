@@ -2,30 +2,12 @@
 #include <algorithm>
 
 #include "board.h"
+#include "search.h"
 
 using namespace std;
 
 #define MATESCORE 30000
 #define DRAWSCORE 0
-
-class moveOrderer
-{
-private:
-	board base;
-public:
-	moveOrderer(board b)
-	{
-		base = b;
-	}
-	bool operator()(move a, move b)
-	{
-		if (base.moveGains(a) > base.moveGains(b))
-			return true;
-		if (base.moveGains(a) < base.moveGains(b))
-			return false;
-		return b < a;
-	}
-};
 
 int minimax(int depth, board b, int alpha, int beta);
 

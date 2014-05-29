@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 #include <sstream>
 #include <cstdlib>
 #include <ctime>
@@ -63,6 +64,8 @@ int main()
 		{
 			// TODO: implement full go
 			vector<move> moves = b.genMoves();
+			moveOrderer order(b);
+			sort(moves.begin(), moves.end(), order);
 			if (moves.size() != 0)
 			{
 				int besti = -1;
