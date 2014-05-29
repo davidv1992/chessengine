@@ -4,17 +4,17 @@
 
 using namespace std;
 
-static inline int opp(int a)
+static inline int opp(const int a)
 {
 	return (~a & PIECE_COLORMASK);
 }
 
-static inline int CBI(int A, int B)
+static inline int CBI(const int A, const int B)
 {
 	return A*BOARD_SIDE+B;
 }
 
-static inline int abs(int a)
+static inline int abs(const int a)
 {
 	if (a < 0)
 		return -a;
@@ -150,7 +150,12 @@ void board::init(string FEN)
 	}
 }
 
-void board::dump(FILE *stream)
+void board::flipToMove()
+{
+	toMove = ~toMove & PIECE_COLORMASK;
+}
+
+void board::dump(FILE *stream) const
 {
 	for (int i=0; i<8; i++)
 	{
@@ -209,7 +214,7 @@ void board::dump(FILE *stream)
 	fprintf(stream, " %c %c %d\n", (toMove == PIECE_WHITE?'w':'b'), (enPassantColumn == 0)?'-':(enPassantColumn-1+'a'), plyClock);
 }
 
-string board::dumpFEN()
+string board::dumpFEN() const
 {
 	string result = "";
 	
@@ -320,7 +325,7 @@ string board::dumpFEN()
 	return result;
 }
 
-void board::genSwipeMoves(vector<move> &result, int startpos, int dx, int dy)
+void board::genSwipeMoves(vector<move> &result, int startpos, int dx, int dy) const
 {
 	int i = startpos / BOARD_SIDE;
 	int j = startpos % BOARD_SIDE;
@@ -343,7 +348,7 @@ void board::genSwipeMoves(vector<move> &result, int startpos, int dx, int dy)
 	}
 }
 
-vector<move> board::genMoves()
+vector<move> board::genMoves() const
 {
 	vector<move> result;
 	
@@ -666,7 +671,7 @@ void board::executeMove(move m)
 		squares[m.to] = (squares[m.to] & PIECE_COLORMASK) | m.promotePiece;
 }
 
-bool board::checkFromDiag(int kingPos, int di, int dj, unsigned char PIECE_MASK)
+bool board::checkFromDiag(int kingPos, int di, int dj, unsigned char PIECE_MASK) const
 {
 	int i = kingPos/BOARD_SIDE;
 	int j = kingPos%BOARD_SIDE;
@@ -687,7 +692,22 @@ bool board::checkFromDiag(int kingPos, int di, int dj, unsigned char PIECE_MASK)
 	return false;
 }
 
-move board::parseMove(string mov)
+int board::moveGains(move m) const
+{
+	int piecebits = squares[m.to] & ~PIECE_COLORMASK;
+	
+	if (piecebits == PIECE_QUEEN)
+		return 900;
+	if (piecebits == PIECE_ROOK)
+		return 500;
+	if (piecebits == PIECE_BISHOP || piecebits == PIECE_KNIGHT)
+		return 300;
+	if (piecebits == PIECE_PAWN)
+		return 100;
+	return 0;
+}
+
+move board::parseMove(string mov) const
 {
 	int from = 0, to = 0, prom = 0;
 	if (mov[0] >= 'a' && mov[0] <= 'h' && mov[1] >= '1' && mov[1] <= '8')
@@ -713,7 +733,7 @@ move board::parseMove(string mov)
 	return m;
 }
 
-pair<bool,bool> board::inCheck()
+pair<bool,bool> board::inCheck() const
 {
 	pair<bool, bool> result(false,false);
 	for (int i=0; i<8; i++)
@@ -805,7 +825,7 @@ pair<bool,bool> board::inCheck()
 	return result;
 }
 
-int board::eval()
+int board::eval() const
 {
 	int score = 0;
 	for (int i=0; i<BOARD_SIDE; i++)
@@ -835,7 +855,7 @@ int board::eval()
 	return score;
 }
 
-string move::dump()
+string move::dump() const
 {
 	string result = "";
 	result += 'a' + (from%BOARD_SIDE);

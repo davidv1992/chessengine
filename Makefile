@@ -1,4 +1,4 @@
-CXXFLAGS = -g
+CXXFLAGS = -O2
 
 .PHONY: all check version_autogen.h
 

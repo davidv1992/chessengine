@@ -17,24 +17,26 @@ private:
 	unsigned char plyClock;
 	unsigned char toMove;
 	unsigned char enPassantColumn;
-	void genSwipeMoves(std::vector<move> &result, int startpos, int dx, int dy);
+	void genSwipeMoves(std::vector<move> &result, int startpos, int dx, int dy) const;
 	void init(std::string);
-	bool checkFromDiag(int, int, int, unsigned char);
+	bool checkFromDiag(int, int, int, unsigned char) const;
 public:
-	int eval();
+	int eval() const;
 	board();
 	board(std::string);
-	void dump(FILE *);
-	std::string dumpFEN();
-	std::vector<move> genMoves();
+	void dump(FILE *) const;
+	std::string dumpFEN() const;
+	std::vector<move> genMoves() const;
 	void executeMove(move m);
-	std::pair<bool,bool> inCheck();
-	move parseMove(std::string);
-	unsigned char getPlyClock()
+	void flipToMove();
+	std::pair<bool,bool> inCheck() const;
+	move parseMove(std::string) const;
+	int moveGains(move m) const;
+	unsigned char getPlyClock() const
 	{
 		return plyClock;
 	}
-	unsigned char getToMove()
+	unsigned char getToMove() const
 	{
 		return toMove;
 	}
@@ -59,7 +61,7 @@ private:
 		this->promotePiece = promotePiece;
 	}
 public:
-	std::string dump();
+	std::string dump() const;
 	bool operator<(const move &m) const
 	{
 		if (from < m.from)
