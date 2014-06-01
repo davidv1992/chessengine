@@ -21,6 +21,7 @@ private:
 	void init(std::string);
 	bool checkFromDiag(int, int, int, unsigned char) const;
 public:
+	bool operator==(const board b) const;
 	int eval() const;
 	board();
 	board(std::string);

@@ -31,6 +31,19 @@ board::board(string FEN)
 	init(FEN);
 }
 
+bool board::operator==(const board b) const
+{
+	if (!semiEqual(b))
+		return false;
+	if (castleRights != b.castleRights)
+		return false;
+	if (plyClock != b.plyClock)
+		return false;
+	if (enPassantColumn != b.enPassantColumn)
+		return false;
+	return true;
+}
+
 bool board::semiEqual(const board b) const
 {
 	if (toMove != b.toMove)
