@@ -64,6 +64,10 @@ private:
 		this->promotePiece = promotePiece;
 	}
 public:
+	move()
+	{
+		from = to = promotePiece = 0;
+	}
 	std::string dump() const;
 	bool operator<(const move &m) const
 	{

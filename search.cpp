@@ -4,6 +4,7 @@
 #include "board.h"
 #include "search.h"
 #include "history.h"
+#include "table.h"
 
 using namespace std;
 
@@ -48,6 +49,29 @@ int quiesence(board b, int alpha, int beta, bool hasPass)
 
 int minimax(int depth, board b, int alpha, int beta)
 {
+	lookupResult res;
+	bool haveHit = queryTable(b, res);
+
+	if (haveHit && depth <= res.depth)
+	{
+		if (res.type == SCORE_LOWERBOUND)
+		{
+			if (res.evaluation > beta)
+				return -res.evaluation;
+			else
+				alpha = max(alpha, res.evaluation);
+		}
+		if (res.type == SCORE_UPPERBOUND)
+		{
+			if (res.evaluation < alpha)
+				return -res.evaluation;
+			else
+				beta = min(beta, res.evaluation);
+		}
+		if (res.type == SCORE_EXACT)
+			return -res.evaluation;
+	}
+
 	//if (depth == 0)
 	//	return quiesence(b, alpha, beta, false);
 	if (depth == 0)
@@ -71,18 +95,35 @@ int minimax(int depth, board b, int alpha, int beta)
 		return 0;
 	
 	int bestSoFar = -MATESCORE;
-	for (int i=0; i<moves.size(); i++)
+	if (haveHit)
 	{
+		board temp = b;
+		temp.executeMove(res.bestMove);
+		pushHistory(temp);
+		bestSoFar = minimax(depth-1, temp, -beta, -alpha);
+		popHistory();
+	}
+	int besti = -1;
+	for (int i=0; i<moves.size() && bestSoFar < beta; i++)
+	{
+		if (haveHit && moves[i] == res.bestMove)
+			continue;
 		board temp = b;
 		temp.executeMove(moves[i]);
 		pushHistory(temp);
 		int curScore = minimax(depth-1, temp, -beta, -max(alpha, bestSoFar));
 		popHistory();
 		if (curScore > bestSoFar)
+		{
 			bestSoFar = curScore;
-		if (bestSoFar >= beta)
-			break;
+			besti = i;
+		}
 	}
+	
+	if (besti == -1 && haveHit)
+		putTable(b, depth, bestSoFar, res.bestMove, alpha, beta);
+	else
+		putTable(b, depth, bestSoFar, moves[besti], alpha, beta);
 	
 	return -bestSoFar;
 }

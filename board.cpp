@@ -37,7 +37,7 @@ bool board::operator==(const board b) const
 		return false;
 	if (castleRights != b.castleRights)
 		return false;
-	if (plyClock != b.plyClock)
+	if ((plyClock < 10 || b.plyClock) < 10 && plyClock != b.plyClock)
 		return false;
 	if (enPassantColumn != b.enPassantColumn)
 		return false;

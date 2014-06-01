@@ -1,4 +1,4 @@
-CXXFLAGS = -g
+CXXFLAGS = -O2
 
 .PHONY: all check version_autogen.h
 
@@ -24,8 +24,8 @@ version_autogen.h:
 
 uci.o: version_autogen.h
 
-engine: board.o uci.o search.o history.o
-	g++ $(CXXFLAGS) -o engine uci.o board.o search.o history.o
+engine: board.o uci.o search.o history.o table.o
+	g++ $(CXXFLAGS) -o engine uci.o board.o search.o history.o table.o
 
 check: test/board_test test/hash_test test/genmove_test test/incheck_test
 	./test/board_test
