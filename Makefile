@@ -1,4 +1,4 @@
-CXXFLAGS = -O2
+CXXFLAGS = -g
 
 .PHONY: all check version_autogen.h
 
@@ -6,6 +6,9 @@ all: test/board_test test/genmove_test test/random_move test/incheck_test engine
 
 test/board_test: board.o test/board_test.o
 	g++ $(CXXFLAGS) -o test/board_test board.o test/board_test.o
+
+test/hash_test: board.o test/hash_test.o
+	g++ $(CXXFLAGS) -o test/hash_test board.o test/hash_test.o
 
 test/genmove_test: board.o test/genmove_test.o
 	g++ $(CXXFLAGS) -o test/genmove_test board.o test/genmove_test.o
@@ -24,14 +27,15 @@ uci.o: version_autogen.h
 engine: board.o uci.o search.o history.o
 	g++ $(CXXFLAGS) -o engine uci.o board.o search.o history.o
 
-check: test/board_test test/genmove_test test/incheck_test
+check: test/board_test test/hash_test test/genmove_test test/incheck_test
 	./test/board_test
+	./test/hash_test
 	./test/incheck_test
 	./test/genmove_test
 
 clean:
 	rm -f *.o *.d test/*.o test/*.d 
-	rm -f test/board_test test/genmove_test test/incheck_test
+	rm -f test/board_test test/genmove_test test/incheck_test test/hash_test
 	rm -f test/random_move
 	rm -f engine
 	rm -f *~ test/*~

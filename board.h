@@ -24,6 +24,7 @@ public:
 	int eval() const;
 	board();
 	board(std::string);
+	unsigned long long hash() const;
 	bool semiEqual(const board b) const;
 	void dump(FILE *) const;
 	std::string dumpFEN() const;
