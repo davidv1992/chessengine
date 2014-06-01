@@ -31,6 +31,18 @@ board::board(string FEN)
 	init(FEN);
 }
 
+bool board::semiEqual(const board b) const
+{
+	if (toMove != b.toMove)
+		return false;
+	
+	for (int i=0; i<BOARD_SQRS; i++)
+		if (squares[i] != b.squares[i])
+			return false;
+	
+	return true;
+}
+
 void board::init(string FEN)
 {
 	// empty init everything

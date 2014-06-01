@@ -7,10 +7,13 @@
 #include "version.h"
 #include "board.h"
 #include "search.h"
+#include "history.h"
 
 using namespace std;
 
 // UCI command interface
+
+extern vector<board> history;
 
 int main()
 {
@@ -37,6 +40,7 @@ int main()
 		}
 		else if (command == "position")
 		{
+			clearHistory();
 			string FEN_A, FEN_B, FEN_C, FEN_D, FEN_E, FEN_F;
 			string move;
 			input >> FEN_A;
@@ -52,12 +56,14 @@ int main()
 			
 			input >> FEN_A;
 			
+			pushHistory(b);
 			while (input)
 			{
 				input >> move;
 				if (!input)
 					break;
 				b.executeMove(b.parseMove(move));
+				pushHistory(b);
 			}
 		}
 		else if (command == "go")
@@ -74,7 +80,9 @@ int main()
 				{
 					board temp = b;
 					temp.executeMove(moves[i]);
+					pushHistory(temp);
 					int curScore = minimax(DEPTH, temp, -60000, -bestScore+50)+rand()%50;
+					popHistory();
 					if (curScore > bestScore)
 					{
 						besti = i;

@@ -3,6 +3,7 @@
 
 #include "board.h"
 #include "search.h"
+#include "history.h"
 
 using namespace std;
 
@@ -52,6 +53,9 @@ int minimax(int depth, board b, int alpha, int beta)
 	if (depth == 0)
 		return -b.eval();
 	
+	if (inHistory(b))
+		return 0;
+	
 	moveOrderer order(b);
 	vector<move> moves = b.genMoves();
 	sort(moves.begin(), moves.end(), order);
@@ -71,7 +75,9 @@ int minimax(int depth, board b, int alpha, int beta)
 	{
 		board temp = b;
 		temp.executeMove(moves[i]);
+		pushHistory(temp);
 		int curScore = minimax(depth-1, temp, -beta, -max(alpha, bestSoFar));
+		popHistory();
 		if (curScore > bestSoFar)
 			bestSoFar = curScore;
 		if (bestSoFar >= beta)

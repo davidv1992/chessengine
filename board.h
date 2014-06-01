@@ -24,6 +24,7 @@ public:
 	int eval() const;
 	board();
 	board(std::string);
+	bool semiEqual(const board b) const;
 	void dump(FILE *) const;
 	std::string dumpFEN() const;
 	std::vector<move> genMoves() const;
