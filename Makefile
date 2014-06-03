@@ -24,8 +24,8 @@ version_autogen.h:
 
 uci.o: version_autogen.h
 
-engine: board.o uci.o search.o history.o table.o
-	g++ $(CXXFLAGS) -o engine uci.o board.o search.o history.o table.o
+engine: board.o uci.o search.o history.o table.o book.o
+	g++ $(CXXFLAGS) -o engine uci.o board.o search.o history.o table.o book.o
 
 check: test/board_test test/hash_test test/genmove_test test/incheck_test
 	./test/board_test

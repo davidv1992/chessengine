@@ -3,11 +3,13 @@
 #include <sstream>
 #include <cstdlib>
 #include <ctime>
+#include <cstdio>
 
 #include "version.h"
 #include "board.h"
 #include "search.h"
 #include "history.h"
+#include "book.h"
 
 using namespace std;
 
@@ -29,6 +31,7 @@ int main()
 	
 		if (command == "uci")
 		{
+			initBook();
 			srand(time(NULL));
 			cout << "id name " << ENGINE_NAME << endl;
 			cout << "id version " << ENGINE_VERSION << endl;
@@ -68,32 +71,45 @@ int main()
 		}
 		else if (command == "go")
 		{
-			// TODO: implement full go
-			vector<move> moves = b.genMoves();
-			moveOrderer order(b);
-			sort(moves.begin(), moves.end(), order);
-			if (moves.size() != 0)
+			// query book
+			move bookMove;
+			if (queryBook(b, bookMove))
 			{
-				int besti = -1;
-				int bestScore = -60000;
-				for (int i=0; i<moves.size(); i++)
-				{
-					board temp = b;
-					temp.executeMove(moves[i]);
-					pushHistory(temp);
-					int curScore = minimax(DEPTH, temp, -60000, -bestScore+50)+rand()%50;
-					popHistory();
-					if (curScore > bestScore)
-					{
-						besti = i;
-						bestScore = curScore;
-					}
-				}
-				cout << "bestmove " << moves[besti].dump() << endl;
+				clock_t start = clock();
+				while (clock() < start + CLOCKS_PER_SEC);
+				cout << "info string found book move" << endl;
+				cout << "bestmove " << bookMove.dump() << endl;
 			}
 			else
 			{
-				cout << "bestmove 0000" << endl;
+				cout << "info string start calculating" << endl;
+				// TODO: implement full go
+				vector<move> moves = b.genMoves();
+				moveOrderer order(b);
+				sort(moves.begin(), moves.end(), order);
+				if (moves.size() != 0)
+				{
+					int besti = -1;
+					int bestScore = -60000;
+					for (int i=0; i<moves.size(); i++)
+					{
+						board temp = b;
+						temp.executeMove(moves[i]);
+						pushHistory(temp);
+						int curScore = minimax(DEPTH, temp, -60000, -bestScore+50)+rand()%50;
+						popHistory();
+						if (curScore > bestScore)
+						{
+							besti = i;
+							bestScore = curScore;
+						}
+					}
+					cout << "bestmove " << moves[besti].dump() << endl;
+				}
+				else
+				{
+					cout << "bestmove 0000" << endl;
+				}
 			}
 		}
 		else if (command == "quit")

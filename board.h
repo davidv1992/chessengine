@@ -11,6 +11,7 @@ class move;
 
 class board
 {
+friend bool queryBook(board b, move &m);
 private:
 	unsigned char squares[BOARD_SQRS];
 	unsigned char castleRights;
@@ -51,6 +52,7 @@ friend class board;
 private:
 	int from, to;
 	int promotePiece;
+public:
 	move(int from, int to)
 	{
 		this->from = from;
@@ -63,7 +65,6 @@ private:
 		this->to = to;
 		this->promotePiece = promotePiece;
 	}
-public:
 	move()
 	{
 		from = to = promotePiece = 0;
