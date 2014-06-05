@@ -11,6 +11,25 @@ using namespace std;
 #define MATESCORE 30000
 #define DRAWSCORE 0
 
+class moveOrderer
+{
+private:
+	board base;
+public:
+	moveOrderer(board b)
+	{
+		base = b;
+	}
+	bool operator()(move a, move b)
+	{
+		if (base.moveGains(a) > base.moveGains(b))
+			return true;
+		if (base.moveGains(a) < base.moveGains(b))
+			return false;
+		return b < a;
+	}
+};
+
 int minimax(int depth, board b, int alpha, int beta);
 
 int quiesence(board b, int alpha, int beta, bool hasPass)
@@ -126,4 +145,40 @@ int minimax(int depth, board b, int alpha, int beta)
 		putTable(b, depth, bestSoFar, moves[besti], alpha, beta);
 	
 	return -bestSoFar;
+}
+
+bool findMove(board b, move &bestMove)
+{
+	if (queryBook(b, bestMove))
+	{
+		clock_t start = clock();
+		while (clock() < start + CLOCKS_PER_SEC/10);
+		return true;
+	}
+	
+	vector<move> moves = b.genMoves();
+	moveOrderer order(b);
+	sort(moves.begin(), moves.end(), order);
+	
+	if (moves.size() == 0)
+		return false;
+	
+	int besti = -1;
+	int bestScore = -60000;
+	for (int i=0; i<moves.size(); i++)
+	{
+		board temp = b;
+		temp.executeMove(moves[i]);
+		pushHistory(temp);
+		int curScore = minimax(DEPTH, temp, -60000, -bestScore+50)+rand()%50;
+		popHistory();
+		if (curScore > bestScore)
+		{
+			besti = i;
+			bestScore = curScore;
+		}
+	}
+	
+	bestMove = moves[besti];
+	return true;
 }

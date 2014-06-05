@@ -71,45 +71,16 @@ int main()
 		}
 		else if (command == "go")
 		{
+			// Find move
 			// query book
-			move bookMove;
-			if (queryBook(b, bookMove))
+			move bestMove;
+			if (findMove(b, bestMove))
 			{
-				clock_t start = clock();
-				while (clock() < start + CLOCKS_PER_SEC);
-				cout << "info string found book move" << endl;
-				cout << "bestmove " << bookMove.dump() << endl;
+				cout << "bestmove " << bestMove.dump() << endl;
 			}
 			else
 			{
-				cout << "info string start calculating" << endl;
-				// TODO: implement full go
-				vector<move> moves = b.genMoves();
-				moveOrderer order(b);
-				sort(moves.begin(), moves.end(), order);
-				if (moves.size() != 0)
-				{
-					int besti = -1;
-					int bestScore = -60000;
-					for (int i=0; i<moves.size(); i++)
-					{
-						board temp = b;
-						temp.executeMove(moves[i]);
-						pushHistory(temp);
-						int curScore = minimax(DEPTH, temp, -60000, -bestScore+50)+rand()%50;
-						popHistory();
-						if (curScore > bestScore)
-						{
-							besti = i;
-							bestScore = curScore;
-						}
-					}
-					cout << "bestmove " << moves[besti].dump() << endl;
-				}
-				else
-				{
-					cout << "bestmove 0000" << endl;
-				}
+				cout << "bestmove 0000" << endl;
 			}
 		}
 		else if (command == "quit")
