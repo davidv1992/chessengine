@@ -65,11 +65,58 @@ int quiesence(board b, int alpha, int beta, bool hasPass)
 	if (b.inCheck().first || b.inCheck().second)
 		return minimax(1, b, alpha, beta, 0);
 	
+	lookupResult res;
+	bool haveHit = queryTable(b, res);
+	
 	int bestSoFar;
 	if (hasPass)
-		bestSoFar = b.eval();
+	{
+		alpha = max(b.eval(), alpha);
+		if (alpha >= beta)
+			return alpha;
+		if (haveHit)
+		{
+			if (res.type == SCORE_LOWERBOUND)
+			{
+				if (res.evaluation >= beta)
+					return -res.evaluation;
+				else
+					alpha = max(alpha, res.evaluation);
+			}
+			if (res.type == SCORE_UPPERBOUND)
+			{
+				if (res.evaluation <= alpha)
+					return -alpha;
+				else
+					beta = min(beta, res.evaluation);
+			}
+			if (res.type == SCORE_EXACT)
+				return -max(alpha, res.evaluation);
+		}
+	
+		bestSoFar = alpha;
+	}
 	else
 	{
+		if (haveHit)
+		{
+			if (res.type == SCORE_LOWERBOUND)
+			{
+				if (res.evaluation >= beta)
+					return -res.evaluation;
+				else
+					alpha = max(alpha, res.evaluation);
+			}
+			if (res.type == SCORE_UPPERBOUND)
+			{
+				if (res.evaluation <= alpha)
+					return -res.evaluation;
+				else
+					beta = min(beta, res.evaluation);
+			}
+			if (res.type == SCORE_EXACT)
+				return -res.evaluation;
+		}
 		b.flipToMove();
 		bestSoFar = quiesence(b, -beta, -alpha, true);
 		b.flipToMove();
@@ -78,6 +125,7 @@ int quiesence(board b, int alpha, int beta, bool hasPass)
 	vector<move> moves = b.genMoves();
 	moveOrderer order(b);
 	sort(moves.begin(), moves.end(), order);
+	int besti = 0;
 	for (int i=0; i<moves.size(); i++)
 	{
 		if (b.moveGains(moves[i]) < 300)
@@ -86,10 +134,15 @@ int quiesence(board b, int alpha, int beta, bool hasPass)
 		temp.executeMove(moves[i]);
 		int curScore = quiesence(temp, -beta, -max(alpha, bestSoFar), false);
 		if (curScore > bestSoFar)
+		{
 			bestSoFar = curScore;
+			besti = i;
+		}
 		if (bestSoFar >= beta)
 			break;
 	}
+	
+	putTable(b, 0, bestSoFar, moves[besti], alpha, beta);
 	
 	return -bestSoFar;
 }
@@ -103,14 +156,14 @@ int minimax(int depth, board b, int alpha, int beta, int movesDone)
 	{
 		if (res.type == SCORE_LOWERBOUND)
 		{
-			if (res.evaluation > beta)
+			if (res.evaluation >= beta)
 				return -res.evaluation;
 			else
 				alpha = max(alpha, res.evaluation);
 		}
 		if (res.type == SCORE_UPPERBOUND)
 		{
-			if (res.evaluation < alpha)
+			if (res.evaluation <= alpha)
 				return -res.evaluation;
 			else
 				beta = min(beta, res.evaluation);
