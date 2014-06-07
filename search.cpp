@@ -195,6 +195,7 @@ bool calcMoveID(board b, move &bestMove, clock_t deadline, clock_t hardline)
 		int besti = -1; 
 		int bestScore = -MATESCORE_MAX;
 		vector<pair<int, move> > newPairs;
+		int qref = 0;
 		for (int i=0; i<moveEvalPairs.size(); i++)
 		{
 			if ((i)*DONE_FACTOR < moveEvalPairs.size()*TOTAL_FACTOR && deadline <= clock())
@@ -204,7 +205,11 @@ bool calcMoveID(board b, move &bestMove, clock_t deadline, clock_t hardline)
 			board temp = b;
 			temp.executeMove(moveEvalPairs[i].second);
 			pushHistory(temp);
-			int curScore = minimax(depth, temp, -MATESCORE_MAX, -bestScore+1, 0);
+			int curScore = minimax(depth, temp, -bestScore, -bestScore+1, 0);
+			if (curScore >= bestScore)
+				curScore = minimax(depth, temp, -MATESCORE_MAX, -bestScore+1, 0);
+			else
+				qref++;
 			popHistory();
 			newPairs.push_back(make_pair(curScore, moveEvalPairs[i].second));
 			if (curScore > bestScore)
@@ -213,6 +218,9 @@ bool calcMoveID(board b, move &bestMove, clock_t deadline, clock_t hardline)
 				bestScore = curScore;
 			}
 		}
+		
+		cout << "info string quickrefute " << qref << "/" << moveEvalPairs.size() << endl;
+		cout << "info string quickrefute " << (double(qref)/double(moveEvalPairs.size())) << endl;
 		
 		moveEvalPairs.swap(newPairs);
 		
