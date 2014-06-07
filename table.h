@@ -3,7 +3,7 @@
 
 #include "board.h"
 
-#define TABLE_SIZE (1024*1024*8)
+#define TABLE_SIZE (1024*1024*32)
 
 enum scoreType {SCORE_EXACT, SCORE_LOWERBOUND, SCORE_UPPERBOUND};
 

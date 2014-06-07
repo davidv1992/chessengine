@@ -50,16 +50,16 @@ class move
 {
 friend class board;
 private:
-	int from, to;
-	int promotePiece;
+	unsigned char from, to;
+	unsigned char promotePiece;
 public:
-	move(int from, int to)
+	move(unsigned char from, unsigned char to)
 	{
 		this->from = from;
 		this->to = to;
 		this->promotePiece = 0;
 	}
-	move(int from, int to, int promotePiece)
+	move(unsigned char from, unsigned char to, unsigned char promotePiece)
 	{
 		this->from = from;
 		this->to = to;

@@ -197,6 +197,10 @@ bool calcMoveID(board b, move &bestMove, clock_t deadline, clock_t hardline)
 		vector<pair<int, move> > newPairs;
 		for (int i=0; i<moveEvalPairs.size(); i++)
 		{
+			if ((i)*DONE_FACTOR < moveEvalPairs.size()*TOTAL_FACTOR && deadline <= clock())
+				goto retMove;
+			if (hardline <= clock())
+				goto retMove;
 			board temp = b;
 			temp.executeMove(moveEvalPairs[i].second);
 			pushHistory(temp);
@@ -208,10 +212,6 @@ bool calcMoveID(board b, move &bestMove, clock_t deadline, clock_t hardline)
 				besti = i;
 				bestScore = curScore;
 			}
-			if ((i+1)*DONE_FACTOR < moveEvalPairs.size()*TOTAL_FACTOR && deadline <= clock())
-				goto retMove;
-			if (hardline <= clock())
-				goto retMove;
 		}
 		
 		moveEvalPairs.swap(newPairs);

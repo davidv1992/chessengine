@@ -102,6 +102,7 @@ int main()
 				cout << "bestmove 0000" << endl;
 			}
 			cout << "info string tablehits: " << queryTableHits() << "/" << queryTableTotal() << endl;
+			cout << "info string table frac: " << (double(queryTableHits())/double(queryTableTotal())) << endl;
 		}
 		else if (command == "quit")
 		{

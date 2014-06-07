@@ -4,7 +4,7 @@
 
 using namespace std;
 
-vector<pair<board,lookupResult> > table(TABLE_SIZE);
+vector<pair<unsigned long long,lookupResult> > table(TABLE_SIZE);
 
 void putTable(board b, int depth, int eval, move bestmove, int alpha, int beta)
 {
@@ -16,8 +16,12 @@ void putTable(board b, int depth, int eval, move bestmove, int alpha, int beta)
 	else if (res.evaluation <= alpha)
 		res.type = SCORE_UPPERBOUND;
 	else
+	{
 		res.type = SCORE_EXACT;
-	table[b.hash()%TABLE_SIZE] = make_pair(b, res);
+	}
+	unsigned long long index = b.hash()%TABLE_SIZE;
+	
+	table[index] = make_pair(b.hash(), res);
 }
 
 unsigned long long hits = 0;
@@ -27,7 +31,7 @@ bool queryTable(board b, lookupResult &res)
 {
 	int index = b.hash()%TABLE_SIZE;
 	total++;
-	if (table[index].first == b)
+	if (table[index].first == b.hash())
 	{
 		res = table[index].second;
 		hits++;
