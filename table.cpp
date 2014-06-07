@@ -26,5 +26,7 @@ bool queryTable(board b, lookupResult &res)
 	if (table[index].first == b)
 	{
 		res = table[index].second;
+		return true;
 	}
+	return false;
 }
