@@ -13,6 +13,7 @@ using namespace std;
 
 #define MATESCORE(d) (60000-((d)>30?30000:1000*(d)))
 #define MATESCORE_MAX 60000
+#define MATESCORE_MIN 30000
 #define DRAWSCORE 0
 
 class moveOrderer
@@ -174,7 +175,7 @@ int minimax(int depth, board b, int alpha, int beta, int movesDone)
 	return -bestSoFar;
 }
 
-bool calcMoveID(board b, move &bestMove, clock_t deadline)
+bool calcMoveID(board b, move &bestMove, clock_t deadline, clock_t hardline)
 {
 	vector<move> moves = b.genMoves();
 	vector<pair<int, move> > moveEvalPairs;
@@ -188,7 +189,7 @@ bool calcMoveID(board b, move &bestMove, clock_t deadline)
 	
 	sort(moveEvalPairs.begin(), moveEvalPairs.end(), order);
 	
-	for (int depth = 0; deadline > clock(); depth++)
+	for (int depth = 0; deadline > clock() && moveEvalPairs.size() > 1; depth++)
 	{
 		cout << "info depth " << depth << endl;	
 		int besti = -1; 
@@ -209,13 +210,22 @@ bool calcMoveID(board b, move &bestMove, clock_t deadline)
 			}
 			if ((i+1)*DONE_FACTOR < moveEvalPairs.size()*TOTAL_FACTOR && deadline <= clock())
 				goto retMove;
+			if (hardline <= clock())
+				goto retMove;
 		}
 		
 		moveEvalPairs.swap(newPairs);
 		
 		sort(moveEvalPairs.begin(), moveEvalPairs.end(), order);
-		if (moveEvalPairs[0].first >= MATESCORE(depth) || moveEvalPairs[0].first <= -MATESCORE(depth))
+		if (moveEvalPairs[0].first >= MATESCORE_MIN || moveEvalPairs[0].first <= -MATESCORE_MIN)
 			break;	// mate found, further calc not neccessary
+		
+		// eliminate known bad moves
+		int nSize = 1;
+		while (nSize < moveEvalPairs.size() && moveEvalPairs[nSize].first > -MATESCORE_MIN)
+			nSize++;
+		
+		moveEvalPairs.resize(nSize);
 	}
 
 retMove:	
@@ -268,12 +278,14 @@ bool findMove(board b, move &bestMove, int wtime, int btime, int movestogo)
 	}
 	
 	clock_t deadline = 0;
+	clock_t hardline = 0;
 	if (b.getToMove())
 	{
 		if (btime != 0)
 		{
 			int target = btime/(movestogo+MOVE_LEAWAY) - OVERHEAD;
 			deadline = (CLOCKS_PER_SEC/1000)*target + clock();
+			hardline = (CLOCKS_PER_SEC/1000)*HARDLINE_FACTOR*target+clock();
 		}
 	}
 	else
@@ -282,11 +294,12 @@ bool findMove(board b, move &bestMove, int wtime, int btime, int movestogo)
 		{
 			int target = wtime/(movestogo+MOVE_LEAWAY) - OVERHEAD;
 			deadline = (CLOCKS_PER_SEC/1000)*target + clock();
+			hardline = (CLOCKS_PER_SEC/1000)*HARDLINE_FACTOR*target+clock();
 		}
 	}
 	
 	if (deadline != 0)
-		return calcMoveID(b, bestMove, deadline);
+		return calcMoveID(b, bestMove, deadline, hardline);
 	else
 		return calcMove(b, bestMove);
 }

@@ -2,7 +2,8 @@
 #define SEARCH_H
 
 #define DEPTH 7
-#define MOVE_LEAWAY 2
+#define MOVE_LEAWAY 3
+#define HARDLINE_FACTOR 2
 #define OVERHEAD 20
 #define DONE_FACTOR 2
 #define TOTAL_FACTOR 1

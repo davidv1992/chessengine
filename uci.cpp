@@ -10,6 +10,7 @@
 #include "search.h"
 #include "history.h"
 #include "book.h"
+#include "table.h"
 
 using namespace std;
 
@@ -74,6 +75,8 @@ int main()
 			int wtime = 0;
 			int btime = 0;
 			int movestogo = 0;
+			
+			resetTableHits();
 		
 			// Parse rest of input
 			while (input)
@@ -98,6 +101,7 @@ int main()
 			{
 				cout << "bestmove 0000" << endl;
 			}
+			cout << "info string tablehits: " << queryTableHits() << "/" << queryTableTotal() << endl;
 		}
 		else if (command == "quit")
 		{
