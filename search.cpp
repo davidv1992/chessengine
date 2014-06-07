@@ -1,10 +1,13 @@
 #include <vector>
 #include <algorithm>
+#include <ctime>
 
 #include "board.h"
 #include "search.h"
 #include "history.h"
 #include "table.h"
+
+#include <iostream>
 
 using namespace std;
 
@@ -44,6 +47,8 @@ public:
 	{
 		if (a.first > b.first)
 			return true;
+		if (a.first < b.first)
+			return false;
 		if (base.moveGains(a.second) > base.moveGains(b.second))
 			return true;
 		if (base.moveGains(a.second) < base.moveGains(b.second))
@@ -169,7 +174,7 @@ int minimax(int depth, board b, int alpha, int beta, int movesDone)
 	return -bestSoFar;
 }
 
-bool calcMoveID(board b, move &bestMove)
+bool calcMoveID(board b, move &bestMove, clock_t deadline)
 {
 	vector<move> moves = b.genMoves();
 	vector<pair<int, move> > moveEvalPairs;
@@ -181,10 +186,11 @@ bool calcMoveID(board b, move &bestMove)
 	for (int i=0; i<moves.size(); i++)
 		moveEvalPairs.push_back(make_pair(0, moves[i]));
 	
-	sort(moveEvalPairs.begin(), moveEvalPairs.end());
+	sort(moveEvalPairs.begin(), moveEvalPairs.end(), order);
 	
-	for (int depth = 0; depth<=DEPTH; depth++)
-	{	
+	for (int depth = 0; deadline > clock(); depth++)
+	{
+		cout << "info depth " << depth << endl;	
 		int besti = -1; 
 		int bestScore = -MATESCORE_MAX;
 		vector<pair<int, move> > newPairs;
@@ -193,7 +199,7 @@ bool calcMoveID(board b, move &bestMove)
 			board temp = b;
 			temp.executeMove(moveEvalPairs[i].second);
 			pushHistory(temp);
-			int curScore = minimax(DEPTH, temp, -MATESCORE_MAX, -bestScore, 0);
+			int curScore = minimax(depth, temp, -MATESCORE_MAX, -bestScore+1, 0);
 			popHistory();
 			newPairs.push_back(make_pair(curScore, moveEvalPairs[i].second));
 			if (curScore > bestScore)
@@ -201,12 +207,25 @@ bool calcMoveID(board b, move &bestMove)
 				besti = i;
 				bestScore = curScore;
 			}
+			if ((i+1)*DONE_FACTOR < moveEvalPairs.size()*TOTAL_FACTOR && deadline <= clock())
+				goto retMove;
 		}
 		
-		sort(moveEvalPairs.begin(), moveEvalPairs.end());
+		moveEvalPairs.swap(newPairs);
+		
+		sort(moveEvalPairs.begin(), moveEvalPairs.end(), order);
+		if (moveEvalPairs[0].first >= MATESCORE(depth) || moveEvalPairs[0].first <= -MATESCORE(depth))
+			break;	// mate found, further calc not neccessary
 	}
+
+retMove:	
+	int range = 1;
+	while (range < moveEvalPairs.size() && moveEvalPairs[range].first == moveEvalPairs[0].first)
+		range++;
 	
-	bestMove = moveEvalPairs[0].second;
+	int index = rand()%range;
+	
+	bestMove = moveEvalPairs[index].second;
 	return true;
 }
 
@@ -239,7 +258,7 @@ bool calcMove(board b, move &bestMove)
 	return true;
 }
 
-bool findMove(board b, move &bestMove)
+bool findMove(board b, move &bestMove, int wtime, int btime, int movestogo)
 {
 	if (queryBook(b, bestMove))
 	{
@@ -248,5 +267,26 @@ bool findMove(board b, move &bestMove)
 		return true;
 	}
 	
-	return calcMoveID(b, bestMove);
+	clock_t deadline = 0;
+	if (b.getToMove())
+	{
+		if (btime != 0)
+		{
+			int target = btime/(movestogo+MOVE_LEAWAY) - OVERHEAD;
+			deadline = (CLOCKS_PER_SEC/1000)*target + clock();
+		}
+	}
+	else
+	{
+		if (wtime != 0)
+		{
+			int target = wtime/(movestogo+MOVE_LEAWAY) - OVERHEAD;
+			deadline = (CLOCKS_PER_SEC/1000)*target + clock();
+		}
+	}
+	
+	if (deadline != 0)
+		return calcMoveID(b, bestMove, deadline);
+	else
+		return calcMove(b, bestMove);
 }

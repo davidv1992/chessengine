@@ -71,10 +71,26 @@ int main()
 		}
 		else if (command == "go")
 		{
+			int wtime = 0;
+			int btime = 0;
+			int movestogo = 0;
+		
+			// Parse rest of input
+			while (input)
+			{
+				string subcommand;
+				input >> subcommand;
+				if (subcommand == "wtime")
+					input >> wtime;
+				else if (subcommand == "btime")
+					input >> btime;
+				else if (subcommand == "movestogo")
+					input >> movestogo;
+			}
+		
 			// Find move
-			// query book
 			move bestMove;
-			if (findMove(b, bestMove))
+			if (findMove(b, bestMove, wtime, btime, movestogo))
 			{
 				cout << "bestmove " << bestMove.dump() << endl;
 			}
